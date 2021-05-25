@@ -1,0 +1,189 @@
+Index: app/src/main/java/com/files/filesshortcut/Shortcuts.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.files.filesshortcut\r\n\r\nimport android.app.AlertDialog\r\nimport android.app.PendingIntent\r\nimport android.content.Context\r\nimport android.content.Intent\r\nimport android.content.pm.ShortcutInfo\r\nimport android.content.pm.ShortcutManager\r\nimport android.graphics.drawable.Icon\r\nimport android.net.Uri\r\nimport android.os.Build\r\nimport android.view.LayoutInflater\r\nimport android.widget.Toast\r\nimport androidx.annotation.RequiresApi\r\nimport androidx.core.content.ContextCompat.getSystemService\r\nimport androidx.core.net.toUri\r\nimport java.lang.Exception\r\nimport kotlin.random.Random\r\n\r\n\r\n//Requires api level 25\r\n@RequiresApi(Build.VERSION_CODES.N_MR1)\r\nobject Shortcuts {\r\n\r\n    fun setUp(context: Context, uriPath:Uri, fileName:String) {\r\n        try {\r\n           // val uri = \"content://com.android.externalstorage.documents/document/primary%3ADownload%2Fforest_trees_road_205713_3840x2160.jpg\"\r\n\r\n            val shortcutManager = context.getSystemService(ShortcutManager::class.java)\r\n            if (shortcutManager!!.isRequestPinShortcutSupported) {\r\n                val randomString =java.util.UUID.randomUUID().toString()\r\n                val pinShortcutInfo = ShortcutInfo.Builder(context, randomString)\r\n                        .setShortLabel(fileName)\r\n                        .setIcon(Icon.createWithResource(context, R.drawable.outline_shortcut_white_36dp))\r\n                        .setLongLabel(fileName)\r\n                        .setIntent(\r\n                                Intent(\r\n                                        Intent.ACTION_VIEW\r\n                                        ).setData(uriPath).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)\r\n                        )\r\n\r\n                        .build()\r\n                val pinnedShortcutCallbackIntent = shortcutManager.createShortcutResultIntent(pinShortcutInfo)\r\n                val successCallback = PendingIntent.getBroadcast(context, 0, pinnedShortcutCallbackIntent, 0)\r\n                shortcutManager.requestPinShortcut(pinShortcutInfo, successCallback.intentSender)\r\n            }\r\n        }catch (e:Exception){\r\n            val ex=e\r\n        }\r\n    }\r\n\r\n}\r\n\r\nprivate fun Intent.setData(uri: String): String {\r\n\r\n    return  uri\r\n\r\n}\r\n\r\n\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/files/filesshortcut/Shortcuts.kt	(revision 515a7da4a105ab17cfc79c8d8e4932e2bc4ff184)
++++ app/src/main/java/com/files/filesshortcut/Shortcuts.kt	(date 1620556643248)
+@@ -1,34 +1,35 @@
+ package com.files.filesshortcut
+ 
+-import android.app.AlertDialog
+ import android.app.PendingIntent
+ import android.content.Context
+ import android.content.Intent
+ import android.content.pm.ShortcutInfo
+ import android.content.pm.ShortcutManager
++import android.database.Cursor
+ import android.graphics.drawable.Icon
+ import android.net.Uri
+ import android.os.Build
+-import android.view.LayoutInflater
+-import android.widget.Toast
++import android.provider.MediaStore
+ import androidx.annotation.RequiresApi
+-import androidx.core.content.ContextCompat.getSystemService
+-import androidx.core.net.toUri
+-import java.lang.Exception
+-import kotlin.random.Random
++import java.io.File
+ 
+ 
+ //Requires api level 25
+ @RequiresApi(Build.VERSION_CODES.N_MR1)
+ object Shortcuts {
+ 
+-    fun setUp(context: Context, uriPath:Uri, fileName:String) {
++    fun setUp(context: Context, filePath: File, fileName:String) {
+         try {
+            // val uri = "content://com.android.externalstorage.documents/document/primary%3ADownload%2Fforest_trees_road_205713_3840x2160.jpg"
+ 
++        //    val filename= File(uriPath.path)
++           // val filename2=uriPath.toFile()
+             val shortcutManager = context.getSystemService(ShortcutManager::class.java)
+             if (shortcutManager!!.isRequestPinShortcutSupported) {
+                 val randomString =java.util.UUID.randomUUID().toString()
++
++
++
+                 val pinShortcutInfo = ShortcutInfo.Builder(context, randomString)
+                         .setShortLabel(fileName)
+                         .setIcon(Icon.createWithResource(context, R.drawable.outline_shortcut_white_36dp))
+@@ -36,7 +37,7 @@
+                         .setIntent(
+                                 Intent(
+                                         Intent.ACTION_VIEW
+-                                        ).setData(uriPath).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
++                                        ).setDataAndType(Uri.fromFile(filePath),"application/pdf")
+                         )
+ 
+                         .build()
+@@ -51,11 +52,7 @@
+ 
+ }
+ 
+-private fun Intent.setData(uri: String): String {
+ 
+-    return  uri
+-
+-}
+ 
+ 
+ 
+Index: app/src/main/java/com/files/filesshortcut/MainActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.files.filesshortcut\r\n\r\nimport android.R.attr\r\nimport android.app.AlertDialog\r\nimport android.app.PendingIntent\r\nimport android.content.Context\r\nimport android.content.DialogInterface\r\nimport android.content.Intent\r\nimport android.content.pm.ShortcutInfo\r\nimport android.content.pm.ShortcutManager\r\nimport android.graphics.drawable.Drawable\r\nimport android.graphics.drawable.Icon\r\nimport android.net.Uri\r\nimport android.os.Build\r\nimport android.os.Bundle\r\nimport android.view.ViewGroup\r\nimport android.webkit.MimeTypeMap\r\nimport android.widget.EditText\r\nimport android.widget.Toast\r\nimport androidx.annotation.RequiresApi\r\nimport androidx.appcompat.app.AppCompatActivity\r\nimport androidx.core.net.toUri\r\nimport androidx.core.view.marginBottom\r\nimport com.google.android.material.floatingactionbutton.FloatingActionButton\r\nimport java.io.File\r\nimport java.io.FileNotFoundException\r\nimport java.io.IOException\r\nimport kotlin.Exception\r\n\r\n//zmienne globalne do URI pliku oraz jego nazwy\r\nvar selectedFile=\"\";\r\nvar fileName=\"\"\r\n\r\nclass MainActivity : AppCompatActivity() {\r\n    override fun onCreate(savedInstanceState: Bundle?) {\r\n        super.onCreate(savedInstanceState)\r\n        setContentView(R.layout.activity_main)\r\n\r\n        openFileChooser()\r\n\r\n    }\r\n\r\n\r\n    //otwarcie file pickera\r\n    private fun openFileChooser() {\r\n\r\n        var floatingActionButton = findViewById<FloatingActionButton>(R.id.floatingActionButton)\r\n\r\n        floatingActionButton.setOnClickListener {\r\n\r\n            val intent = Intent().setType(\"*/*\").setAction(Intent.ACTION_GET_CONTENT)\r\n            startActivityForResult(Intent.createChooser(intent, \"Select a file\"), 111)\r\n        }\r\n\r\n\r\n    }\r\n\r\n    //komunikacja zwrotna z wyborem pliku\r\n    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {\r\n        super.onActivityResult(requestCode, resultCode, data)\r\n        try {\r\n            if (requestCode == 111 && resultCode == RESULT_OK) {\r\n                selectedFile = data?.data.toString()\r\n\r\n               // pobranie ścieżki z pliku oraz nazwy pliku wraz z jego rozszerzeniem\r\n                val uriPath = selectedFile.toUri()\r\n                var fileName = File(uriPath.path).name\r\n\r\n\r\n                //zadeklarowanie alert dialogu z możliwością zmiany nazwy skrótu\r\n                val builder: AlertDialog.Builder= AlertDialog.Builder(this)\r\n                builder.setTitle(\"Set shortcut name\")\r\n                val inputEditText= EditText(this)\r\n\r\n                inputEditText.setHint(\"input shotcut name\")\r\n                inputEditText.setText(fileName)\r\n                builder.setView(inputEditText)\r\n\r\n\r\n                builder.setPositiveButton(\"Set shortcut\", DialogInterface.OnClickListener { dialog, which ->\r\n                    fileName=inputEditText.text.toString()\r\n                    Shortcuts.setUp(applicationContext,uriPath,fileName)\r\n                })\r\n                builder.setNegativeButton(\"Cancel\", DialogInterface.OnClickListener { dialog, which -> dialog.cancel() })\r\n\r\n                builder.show()\r\n\r\n\r\n                //getMimeType(selectedFile)\r\n\r\n            }\r\n        } catch (e:Exception) {\r\n            var error=e.localizedMessage\r\n            Toast.makeText(applicationContext,\"Error occured\"+e,Toast.LENGTH_LONG).show()\r\n\r\n        }\r\n\r\n            }\r\n\r\n    }\r\n\r\n    //pobranie typu pliku\r\n    fun getMimeType(path: String): String {\r\n        var type = \"image/jpeg\" // Default Value\r\n        val extension = MimeTypeMap.getFileExtensionFromUrl(path);\r\n        if (extension != null) {\r\n            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)!!\r\n        }\r\n        return type\r\n    }\r\n\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/files/filesshortcut/MainActivity.kt	(revision 515a7da4a105ab17cfc79c8d8e4932e2bc4ff184)
++++ app/src/main/java/com/files/filesshortcut/MainActivity.kt	(date 1620558553723)
+@@ -1,31 +1,17 @@
+ package com.files.filesshortcut
+ 
+-import android.R.attr
+ import android.app.AlertDialog
+-import android.app.PendingIntent
+-import android.content.Context
+ import android.content.DialogInterface
+ import android.content.Intent
+-import android.content.pm.ShortcutInfo
+-import android.content.pm.ShortcutManager
+-import android.graphics.drawable.Drawable
+-import android.graphics.drawable.Icon
+-import android.net.Uri
+-import android.os.Build
+ import android.os.Bundle
+-import android.view.ViewGroup
+ import android.webkit.MimeTypeMap
+ import android.widget.EditText
+ import android.widget.Toast
+-import androidx.annotation.RequiresApi
+ import androidx.appcompat.app.AppCompatActivity
++import androidx.core.content.FileProvider
+ import androidx.core.net.toUri
+-import androidx.core.view.marginBottom
+ import com.google.android.material.floatingactionbutton.FloatingActionButton
+ import java.io.File
+-import java.io.FileNotFoundException
+-import java.io.IOException
+-import kotlin.Exception
+ 
+ //zmienne globalne do URI pliku oraz jego nazwy
+ var selectedFile="";
+@@ -63,8 +49,10 @@
+                 selectedFile = data?.data.toString()
+ 
+                // pobranie ścieżki z pliku oraz nazwy pliku wraz z jego rozszerzeniem
++
+                 val uriPath = selectedFile.toUri()
+                 var fileName = File(uriPath.path).name
++                val filePath=File(uriPath.path)
+ 
+ 
+                 //zadeklarowanie alert dialogu z możliwością zmiany nazwy skrótu
+@@ -79,7 +67,21 @@
+ 
+                 builder.setPositiveButton("Set shortcut", DialogInterface.OnClickListener { dialog, which ->
+                     fileName=inputEditText.text.toString()
+-                    Shortcuts.setUp(applicationContext,uriPath,fileName)
++                   // Shortcuts.setUp(applicationContext,filePath,fileName)
++
++                    val intent= Intent(Intent.ACTION_VIEW)
++                    val uri = FileProvider.getUriForFile(this@MainActivity, BuildConfig.APPLICATION_ID + ".provider", filePath)
++                    intent.setDataAndType(uri,"application/pdf")
++                    intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
++                    val chooserIntent= Intent.createChooser(intent,"Choose file")
++                    try{
++                        startActivity(chooserIntent)
++
++                    }catch (e:java.lang.Exception){
++
++                        val ex=e.localizedMessage
++
++                    }
+                 })
+                 builder.setNegativeButton("Cancel", DialogInterface.OnClickListener { dialog, which -> dialog.cancel() })
+ 
+Index: app/src/main/res/xml/provider_paths.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/xml/provider_paths.xml	(date 1620557979592)
++++ app/src/main/res/xml/provider_paths.xml	(date 1620557979592)
+@@ -0,0 +1,4 @@
++<?xml version="1.0" encoding="utf-8"?>
++<paths xmlns:android="http://schemas.android.com/apk/res/android">
++    <external-path name="external_files" path="."/>
++</paths>
+\ No newline at end of file
+Index: app/src/main/AndroidManifest.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    package=\"com.files.filesshortcut\">\r\n    <uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"/>\r\n    <uses-permission android:name=\"android.permission.READ_EXTERNAL_STORAGE\"/>\r\n    <application\r\n        android:allowBackup=\"true\"\r\n        android:requestLegacyExternalStorage=\"true\"\r\n        android:icon=\"@mipmap/ic_launcher\"\r\n        android:label=\"@string/app_name\"\r\n        android:roundIcon=\"@mipmap/ic_launcher_round\"\r\n        android:supportsRtl=\"true\"\r\n        android:theme=\"@style/Theme.FilesShortcut\">\r\n        <activity android:name=\".MainActivity\">\r\n\r\n            <intent-filter>\r\n                <action android:name=\"android.intent.action.MAIN\" />\r\n\r\n                <category android:name=\"android.intent.category.LAUNCHER\" />\r\n            </intent-filter>\r\n        </activity>\r\n    </application>\r\n\r\n</manifest>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/AndroidManifest.xml	(revision 515a7da4a105ab17cfc79c8d8e4932e2bc4ff184)
++++ app/src/main/AndroidManifest.xml	(date 1620558016793)
+@@ -19,6 +19,15 @@
+                 <category android:name="android.intent.category.LAUNCHER" />
+             </intent-filter>
+         </activity>
++        <provider
++            android:name="androidx.core.content.FileProvider"
++            android:authorities="${applicationId}.provider"
++            android:exported="false"
++            android:grantUriPermissions="true">
++            <meta-data
++                android:name="android.support.FILE_PROVIDER_PATHS"
++                android:resource="@xml/provider_paths"/>
++        </provider>
+     </application>
+ 
+ </manifest>
+\ No newline at end of file

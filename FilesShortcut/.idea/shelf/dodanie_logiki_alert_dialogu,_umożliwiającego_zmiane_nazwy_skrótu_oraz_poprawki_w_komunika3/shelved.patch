@@ -1,0 +1,40 @@
+Index: app/src/main/java/com/files/filesshortcut/Shortcuts.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.files.filesshortcut\r\n\r\nimport android.app.AlertDialog\r\nimport android.app.PendingIntent\r\nimport android.content.Context\r\nimport android.content.Intent\r\nimport android.content.pm.ShortcutInfo\r\nimport android.content.pm.ShortcutManager\r\nimport android.graphics.drawable.Icon\r\nimport android.net.Uri\r\nimport android.os.Build\r\nimport android.view.LayoutInflater\r\nimport android.widget.Toast\r\nimport androidx.annotation.RequiresApi\r\nimport androidx.core.content.ContextCompat.getSystemService\r\nimport androidx.core.net.toUri\r\nimport java.lang.Exception\r\nimport kotlin.random.Random\r\n\r\n\r\n//Requires api level 25\r\n@RequiresApi(Build.VERSION_CODES.N_MR1)\r\nobject Shortcuts {\r\n\r\n    fun setUp(context: Context, uriPath:Uri, fileName:String) {\r\n        try {\r\n           // val uri = \"content://com.android.externalstorage.documents/document/primary%3ADownload%2Fforest_trees_road_205713_3840x2160.jpg\"\r\n\r\n            val shortcutManager = context.getSystemService(ShortcutManager::class.java)\r\n            if (shortcutManager!!.isRequestPinShortcutSupported) {\r\n                val randomString =java.util.UUID.randomUUID().toString()\r\n                val pinShortcutInfo = ShortcutInfo.Builder(context, randomString)\r\n                        .setShortLabel(fileName)\r\n                        .setIcon(Icon.createWithResource(context, R.drawable.outline_shortcut_white_36dp))\r\n                        .setLongLabel(fileName)\r\n                        .setIntent(\r\n                                Intent(\r\n                                        Intent.ACTION_VIEW\r\n                                        ).setData(uriPath).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)\r\n                        )\r\n\r\n                        .build()\r\n                val pinnedShortcutCallbackIntent = shortcutManager.createShortcutResultIntent(pinShortcutInfo)\r\n                val successCallback = PendingIntent.getBroadcast(context, 0, pinnedShortcutCallbackIntent, 0)\r\n                shortcutManager.requestPinShortcut(pinShortcutInfo, successCallback.intentSender)\r\n            }\r\n        }catch (e:Exception){\r\n            val ex=e\r\n        }\r\n    }\r\n\r\n}\r\n\r\nprivate fun Intent.setData(uri: String): String {\r\n\r\n    return  uri\r\n\r\n}\r\n\r\n\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/files/filesshortcut/Shortcuts.kt	(revision 515a7da4a105ab17cfc79c8d8e4932e2bc4ff184)
++++ app/src/main/java/com/files/filesshortcut/Shortcuts.kt	(date 1620549489052)
+@@ -13,7 +13,9 @@
+ import android.widget.Toast
+ import androidx.annotation.RequiresApi
+ import androidx.core.content.ContextCompat.getSystemService
++import androidx.core.net.toFile
+ import androidx.core.net.toUri
++import java.io.File
+ import java.lang.Exception
+ import kotlin.random.Random
+ 
+@@ -26,6 +28,8 @@
+         try {
+            // val uri = "content://com.android.externalstorage.documents/document/primary%3ADownload%2Fforest_trees_road_205713_3840x2160.jpg"
+ 
++            val file= File(uriPath.path)
++            val file2=uriPath.toFile()
+             val shortcutManager = context.getSystemService(ShortcutManager::class.java)
+             if (shortcutManager!!.isRequestPinShortcutSupported) {
+                 val randomString =java.util.UUID.randomUUID().toString()
+@@ -51,11 +55,7 @@
+ 
+ }
+ 
+-private fun Intent.setData(uri: String): String {
+ 
+-    return  uri
+-
+-}
+ 
+ 
+ 

@@ -1,0 +1,124 @@
+Index: app/src/main/java/com/files/filesshortcut/Shortcuts.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.files.filesshortcut\r\n\r\nimport android.app.AlertDialog\r\nimport android.app.PendingIntent\r\nimport android.content.Context\r\nimport android.content.Intent\r\nimport android.content.pm.ShortcutInfo\r\nimport android.content.pm.ShortcutManager\r\nimport android.graphics.drawable.Icon\r\nimport android.net.Uri\r\nimport android.os.Build\r\nimport android.view.LayoutInflater\r\nimport android.widget.Toast\r\nimport androidx.annotation.RequiresApi\r\nimport androidx.core.content.ContextCompat.getSystemService\r\nimport androidx.core.net.toUri\r\nimport java.lang.Exception\r\nimport kotlin.random.Random\r\n\r\n\r\n//Requires api level 25\r\n@RequiresApi(Build.VERSION_CODES.N_MR1)\r\nobject Shortcuts {\r\n\r\n    fun setUp(context: Context, uriPath:Uri, fileName:String) {\r\n        try {\r\n           // val uri = \"content://com.android.externalstorage.documents/document/primary%3ADownload%2Fforest_trees_road_205713_3840x2160.jpg\"\r\n\r\n            val shortcutManager = context.getSystemService(ShortcutManager::class.java)\r\n            if (shortcutManager!!.isRequestPinShortcutSupported) {\r\n                val randomString =java.util.UUID.randomUUID().toString()\r\n                val pinShortcutInfo = ShortcutInfo.Builder(context, randomString)\r\n                        .setShortLabel(fileName)\r\n                        .setIcon(Icon.createWithResource(context, R.drawable.outline_shortcut_white_36dp))\r\n                        .setLongLabel(fileName)\r\n                        .setIntent(\r\n                                Intent(\r\n                                        Intent.ACTION_VIEW\r\n                                        ).setData(uriPath).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)\r\n                        )\r\n\r\n                        .build()\r\n                val pinnedShortcutCallbackIntent = shortcutManager.createShortcutResultIntent(pinShortcutInfo)\r\n                val successCallback = PendingIntent.getBroadcast(context, 0, pinnedShortcutCallbackIntent, 0)\r\n                shortcutManager.requestPinShortcut(pinShortcutInfo, successCallback.intentSender)\r\n            }\r\n        }catch (e:Exception){\r\n            val ex=e\r\n        }\r\n    }\r\n\r\n}\r\n\r\nprivate fun Intent.setData(uri: String): String {\r\n\r\n    return  uri\r\n\r\n}\r\n\r\n\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/files/filesshortcut/Shortcuts.kt	(revision 515a7da4a105ab17cfc79c8d8e4932e2bc4ff184)
++++ app/src/main/java/com/files/filesshortcut/Shortcuts.kt	(date 1620506545388)
+@@ -22,28 +22,39 @@
+ @RequiresApi(Build.VERSION_CODES.N_MR1)
+ object Shortcuts {
+ 
+-    fun setUp(context: Context, uriPath:Uri, fileName:String) {
++    fun setUp(context: Context) {
+         try {
+-           // val uri = "content://com.android.externalstorage.documents/document/primary%3ADownload%2Fforest_trees_road_205713_3840x2160.jpg"
++            val shortcutManager =
++                    getSystemService<ShortcutManager>(context, ShortcutManager::class.java)
+ 
+-            val shortcutManager = context.getSystemService(ShortcutManager::class.java)
+-            if (shortcutManager!!.isRequestPinShortcutSupported) {
+-                val randomString =java.util.UUID.randomUUID().toString()
+-                val pinShortcutInfo = ShortcutInfo.Builder(context, randomString)
+-                        .setShortLabel(fileName)
+-                        .setIcon(Icon.createWithResource(context, R.drawable.outline_shortcut_white_36dp))
+-                        .setLongLabel(fileName)
+-                        .setIntent(
+-                                Intent(
+-                                        Intent.ACTION_VIEW
+-                                        ).setData(uriPath).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+-                        )
+-
+-                        .build()
+-                val pinnedShortcutCallbackIntent = shortcutManager.createShortcutResultIntent(pinShortcutInfo)
+-                val successCallback = PendingIntent.getBroadcast(context, 0, pinnedShortcutCallbackIntent, 0)
+-                shortcutManager.requestPinShortcut(pinShortcutInfo, successCallback.intentSender)
+-            }
++            val randomString =java.util.UUID.randomUUID().toString()
++            val shortcut = ShortcutInfo.Builder(context, randomString)
++                    .setShortLabel("Website")
++                    .setLongLabel("Open the website")
++                    .setIcon(Icon.createWithResource(context, R.drawable.ic_launcher_foreground))
++                    .setIntent(
++                            Intent(
++                                    Intent.ACTION_VIEW,
++                                    Uri.parse("https://www.youtube.com/codepalace")
++                            )
++                    )
++                    .build()
++
++            /*//Create an array of intents to create a more fluent user experience in the back stack
++            val intents = arrayOf(
++                    Intent(Intent.ACTION_VIEW, null, context, MainActivity::class.java),
++                    Intent(Intent.ACTION_VIEW, null, context, Messages::class.java)
++            )
++
++            val shortcut2 = ShortcutInfo.Builder(context, shortcut_messages_id)
++                    .setShortLabel("Messages")
++                    .setLongLabel("Open messages")
++                    .setIcon(Icon.createWithResource(context, R.drawable.ic_messages))
++                    .setIntents(intents)
++                    .build()*/
++
++
++            shortcutManager!!.dynamicShortcuts = listOf(shortcut)
+         }catch (e:Exception){
+             val ex=e
+         }
+Index: app/src/main/java/com/files/filesshortcut/MainActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.files.filesshortcut\r\n\r\nimport android.R.attr\r\nimport android.app.AlertDialog\r\nimport android.app.PendingIntent\r\nimport android.content.Context\r\nimport android.content.DialogInterface\r\nimport android.content.Intent\r\nimport android.content.pm.ShortcutInfo\r\nimport android.content.pm.ShortcutManager\r\nimport android.graphics.drawable.Drawable\r\nimport android.graphics.drawable.Icon\r\nimport android.net.Uri\r\nimport android.os.Build\r\nimport android.os.Bundle\r\nimport android.view.ViewGroup\r\nimport android.webkit.MimeTypeMap\r\nimport android.widget.EditText\r\nimport android.widget.Toast\r\nimport androidx.annotation.RequiresApi\r\nimport androidx.appcompat.app.AppCompatActivity\r\nimport androidx.core.net.toUri\r\nimport androidx.core.view.marginBottom\r\nimport com.google.android.material.floatingactionbutton.FloatingActionButton\r\nimport java.io.File\r\nimport java.io.FileNotFoundException\r\nimport java.io.IOException\r\nimport kotlin.Exception\r\n\r\n//zmienne globalne do URI pliku oraz jego nazwy\r\nvar selectedFile=\"\";\r\nvar fileName=\"\"\r\n\r\nclass MainActivity : AppCompatActivity() {\r\n    override fun onCreate(savedInstanceState: Bundle?) {\r\n        super.onCreate(savedInstanceState)\r\n        setContentView(R.layout.activity_main)\r\n\r\n        openFileChooser()\r\n\r\n    }\r\n\r\n\r\n    //otwarcie file pickera\r\n    private fun openFileChooser() {\r\n\r\n        var floatingActionButton = findViewById<FloatingActionButton>(R.id.floatingActionButton)\r\n\r\n        floatingActionButton.setOnClickListener {\r\n\r\n            val intent = Intent().setType(\"*/*\").setAction(Intent.ACTION_GET_CONTENT)\r\n            startActivityForResult(Intent.createChooser(intent, \"Select a file\"), 111)\r\n        }\r\n\r\n\r\n    }\r\n\r\n    //komunikacja zwrotna z wyborem pliku\r\n    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {\r\n        super.onActivityResult(requestCode, resultCode, data)\r\n        try {\r\n            if (requestCode == 111 && resultCode == RESULT_OK) {\r\n                selectedFile = data?.data.toString()\r\n\r\n               // pobranie ścieżki z pliku oraz nazwy pliku wraz z jego rozszerzeniem\r\n                val uriPath = selectedFile.toUri()\r\n                var fileName = File(uriPath.path).name\r\n\r\n\r\n                //zadeklarowanie alert dialogu z możliwością zmiany nazwy skrótu\r\n                val builder: AlertDialog.Builder= AlertDialog.Builder(this)\r\n                builder.setTitle(\"Set shortcut name\")\r\n                val inputEditText= EditText(this)\r\n\r\n                inputEditText.setHint(\"input shotcut name\")\r\n                inputEditText.setText(fileName)\r\n                builder.setView(inputEditText)\r\n\r\n\r\n                builder.setPositiveButton(\"Set shortcut\", DialogInterface.OnClickListener { dialog, which ->\r\n                    fileName=inputEditText.text.toString()\r\n                    Shortcuts.setUp(applicationContext,uriPath,fileName)\r\n                })\r\n                builder.setNegativeButton(\"Cancel\", DialogInterface.OnClickListener { dialog, which -> dialog.cancel() })\r\n\r\n                builder.show()\r\n\r\n\r\n                //getMimeType(selectedFile)\r\n\r\n            }\r\n        } catch (e:Exception) {\r\n            var error=e.localizedMessage\r\n            Toast.makeText(applicationContext,\"Error occured\"+e,Toast.LENGTH_LONG).show()\r\n\r\n        }\r\n\r\n            }\r\n\r\n    }\r\n\r\n    //pobranie typu pliku\r\n    fun getMimeType(path: String): String {\r\n        var type = \"image/jpeg\" // Default Value\r\n        val extension = MimeTypeMap.getFileExtensionFromUrl(path);\r\n        if (extension != null) {\r\n            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)!!\r\n        }\r\n        return type\r\n    }\r\n\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/files/filesshortcut/MainActivity.kt	(revision 515a7da4a105ab17cfc79c8d8e4932e2bc4ff184)
++++ app/src/main/java/com/files/filesshortcut/MainActivity.kt	(date 1620506680457)
+@@ -19,6 +19,7 @@
+ import android.widget.Toast
+ import androidx.annotation.RequiresApi
+ import androidx.appcompat.app.AppCompatActivity
++import androidx.core.content.ContextCompat.getSystemService
+ import androidx.core.net.toUri
+ import androidx.core.view.marginBottom
+ import com.google.android.material.floatingactionbutton.FloatingActionButton
+@@ -79,7 +80,7 @@
+ 
+                 builder.setPositiveButton("Set shortcut", DialogInterface.OnClickListener { dialog, which ->
+                     fileName=inputEditText.text.toString()
+-                    Shortcuts.setUp(applicationContext,uriPath,fileName)
++                    shortcutPin(applicationContext, "3", 0)
+                 })
+                 builder.setNegativeButton("Cancel", DialogInterface.OnClickListener { dialog, which -> dialog.cancel() })
+ 
+@@ -110,3 +111,28 @@
+     }
+ 
+ 
++@RequiresApi(Build.VERSION_CODES.O)
++private fun shortcutPin(context: Context, requestCode: Int) {
++
++    val shortcutManager = context.getSystemService(ShortcutManager::class.java)
++
++    if (shortcutManager!!.isRequestPinShortcutSupported) {
++        val pinShortcutInfo =
++                ShortcutInfo.Builder(context).build()
++
++        val pinnedShortcutCallbackIntent =
++                shortcutManager.createShortcutResultIntent(pinShortcutInfo)
++
++        val successCallback = PendingIntent.getBroadcast(
++                context, /* request code */ requestCode,
++                pinnedShortcutCallbackIntent, /* flags */ 0
++        )
++
++        shortcutManager.requestPinShortcut(
++                pinShortcutInfo,
++                successCallback.intentSender
++        )
++    }
++}
++
++
